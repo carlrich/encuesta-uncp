@@ -7,7 +7,8 @@ const path = require('path');
 const XLSX = require('xlsx');
 
 const app = express();
-const port = 3000;
+const port = 5000;
+const host = '0.0.0.0';
 
 app.use(cors());
 app.use(bodyParser.json());
@@ -109,4 +110,4 @@ app.post('/api/admin/cambiar-password', (req, res) => {
     });
 });
 
-app.listen(port, () => console.log(`Servidor en http://localhost:${port}`));
+app.listen(port, host, () => console.log(`Servidor en http://${host}:${port}`));
