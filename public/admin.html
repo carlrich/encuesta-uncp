@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Resultados Encuesta UNCP</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script>
+        // Si no existe la marca de login, expulsar al usuario
+        if (!sessionStorage.getItem('admin_logged_in')) {
+            window.location.href = 'login.html';
+        }
+    </script>
+</head>
+<body class="bg-gray-100">
+    
+    <nav class="bg-blue-900 p-4 text-white flex justify-between items-center shadow-md">
+        <div class="flex items-center gap-3">
+             <i class="fas fa-chart-pie text-2xl"></i>
+             <h1 class="text-xl font-bold tracking-wider">PANEL ADMINISTRADOR</h1>
+        </div>
+        
+        <div class="flex gap-4 items-center">
+            <button onclick="cambiarPassword()" class="text-sm bg-blue-800 hover:bg-blue-700 py-2 px-3 rounded transition flex items-center gap-2">
+                <i class="fas fa-key"></i> <span class="hidden md:inline">Cambiar Clave</span>
+            </button>
+
+            <button onclick="cerrarSesion()" class="text-sm bg-red-600 hover:bg-red-500 py-2 px-3 rounded transition flex items-center gap-2">
+                <i class="fas fa-sign-out-alt"></i> Salir
+            </button>
+        </div>
+    </nav>
+
+    <div class="container mx-auto p-6">
+        
+        <div class="flex justify-between items-center mb-8 bg-white p-4 rounded-lg shadow-sm">
+            <div>
+                <h2 class="text-2xl font-bold text-gray-800">Resultados en Tiempo Real</h2>
+                <p class="text-gray-500">Elecciones UNCP</p>
+            </div>
+            <a href="/api/descargar-excel" class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded shadow flex items-center transition duration-300 transform hover:-translate-y-1">
+                <i class="fas fa-file-excel mr-2 text-xl"></i> Descargar Excel
+            </a>
+        </div>
+
+		<div class="bg-blue-50 border-l-4 border-blue-600 p-6 mb-8 rounded shadow-sm">
+			<div class="flex items-start">
+				<div class="flex-shrink-0">
+					<i class="fas fa-bullhorn text-2xl text-blue-600"></i>
+				</div>
+				<div class="ml-4 w-full">
+					<h3 class="text-lg leading-6 font-medium text-blue-900">Resumen de Encuesta (General)</h3>
+					<p id="resumenTexto" class="mt-2 text-xl text-gray-800 font-bold">
+						Cargando datos de la encuesta...
+					</p>
+					<p id="resumenDetalle" class="mt-1 text-sm text-gray-600">
+						</p>
+				</div>
+			</div>
+		</div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div class="bg-white p-6 rounded-lg shadow-lg border-t-4 border-blue-500">
+                <h2 class="text-xl font-bold mb-4 text-center text-blue-800"><i class="fas fa-chalkboard-teacher mr-2"></i>Docentes</h2>
+                <canvas id="chartDocentes"></canvas>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow-lg border-t-4 border-green-500">
+                 <h2 class="text-xl font-bold mb-4 text-center text-green-800"><i class="fas fa-user-graduate mr-2"></i>Estudiantes</h2>
+                <canvas id="chartEstudiantes"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script>
+		// Mapeo de IDs a Nombres
+		const nombresListas = {
+			1: "Universidad 4.0", 2: "Eco Smart UNCP", 3: "Huallallo",
+			4: "Unidad Univ. al Desarrollo", 5: "Leal",
+			6: "Quipu", 7: "Calidad 2030", 8: "Innóvate", 9: "ADU", 0: "Ninguno/Viciado"
+		};
+		
+		// Función auxiliar para calcular porcentajes
+		function calcularPorcentaje(cantidad, total) {
+			if (total === 0) return 0;
+			return ((cantidad / total) * 100).toFixed(1); // 1 decimal
+		}
+
+		async function cargarDatosYGraficar() {
+			try {
+				const response = await fetch('/api/resultados');
+				const result = await response.json();
+				const data = result.data; // data viene como [{rol: 'docente', opcion_id: 1, cantidad: 5}, ...]
+
+				// ----------------------------------------------------
+				// 1. PROCESAMIENTO PARA EL TEXTO RESUMEN (GENERAL)
+				// ----------------------------------------------------
+				
+				// Agrupar votos por lista (sin importar si es docente o alumno) para el titular
+				let totalVotosGlobal = 0;
+				let conteoPorLista = {};
+
+				// Inicializar conteo en 0
+				Object.keys(nombresListas).forEach(id => conteoPorLista[id] = 0);
+
+				// Sumar votos
+				data.forEach(item => {
+					conteoPorLista[item.opcion_id] += item.cantidad;
+					totalVotosGlobal += item.cantidad;
+				});
+
+				// Convertir a array para ordenar: [{id: 1, nombre: '...', cant: 10}, ...]
+				let ranking = Object.keys(conteoPorLista).map(id => {
+					return {
+						id: id,
+						nombre: nombresListas[id],
+						cantidad: conteoPorLista[id],
+						porcentaje: calcularPorcentaje(conteoPorLista[id], totalVotosGlobal)
+					};
+				});
+
+				// Ordenar de mayor a menor cantidad de votos
+				ranking.sort((a, b) => b.cantidad - a.cantidad);
+
+				// GENERAR EL TEXTO DEL TITULAR
+				const resumenDiv = document.getElementById('resumenTexto');
+				const detalleDiv = document.getElementById('resumenDetalle');
+
+				if (totalVotosGlobal === 0) {
+					resumenDiv.innerText = "Aún no hay votos registrados.";
+					detalleDiv.innerText = "Esperando participación...";
+				} else {
+					const primero = ranking[0];
+					const segundo = ranking[1];
+					const tercero = ranking[2];
+
+					// Lógica de redacción
+					let texto = `📢 ${primero.nombre} lidera la intención de voto con el ${primero.porcentaje}%.`;
+					
+					if (segundo && segundo.cantidad > 0) {
+						texto += ` Le sigue ${segundo.nombre} con un ${segundo.porcentaje}%`;
+					}
+					
+					if (tercero && tercero.cantidad > 0) {
+						texto += ` y ${tercero.nombre} ocupando el tercer lugar con ${tercero.porcentaje}%.`;
+					}
+
+					resumenDiv.innerText = texto;
+					detalleDiv.innerText = `Basado en un total de ${totalVotosGlobal} encuestados (Docentes y Estudiantes).`;
+				}
+
+				// ----------------------------------------------------
+				// 2. LÓGICA DE GRÁFICAS (CHART.JS)
+				// ----------------------------------------------------
+				const colores = ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40', '#c9cbcf', '#32a852', '#a83232', '#5e5e5e'];
+
+				const procesarDatosPorRol = (rolObjetivo) => {
+					const filtrados = data.filter(item => item.rol === rolObjetivo);
+					// Mapeamos para asegurar que coincidan etiquetas con datos
+					// (En producción idealmente pre-rellenas con 0 los que no tienen votos, pero esto funciona)
+					const labels = filtrados.map(item => nombresListas[item.opcion_id]);
+					const valores = filtrados.map(item => item.cantidad);
+					
+					return {
+						labels: labels,
+						datasets: [{
+							data: valores,
+							backgroundColor: colores,
+							borderWidth: 1
+						}]
+					};
+				};
+
+				// Renderizar Gráficas
+				// (Asegúrate de tener los canvas con id="chartDocentes" y "chartEstudiantes" en tu HTML)
+				if(document.getElementById('chartDocentes')) {
+					new Chart(document.getElementById('chartDocentes').getContext('2d'), {
+						type: 'pie',
+						data: procesarDatosPorRol('docente'),
+						options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+					});
+				}
+
+				if(document.getElementById('chartEstudiantes')) {
+					new Chart(document.getElementById('chartEstudiantes').getContext('2d'), {
+						type: 'doughnut',
+						data: procesarDatosPorRol('estudiante'),
+						options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+					});
+				}
+
+			} catch (error) {
+				console.error("Error cargando datos:", error);
+				document.getElementById('resumenTexto').innerText = "Error al cargar los datos.";
+			}
+		}
+
+		// Ejecutar al cargar
+		cargarDatosYGraficar();
+
+		function cerrarSesion() {
+            sessionStorage.removeItem('admin_logged_in');
+            sessionStorage.removeItem('admin_username');
+            window.location.href = 'login.html';
+        }
+
+        async function cambiarPassword() {
+            const { value: formValues } = await Swal.fire({
+                title: 'Cambiar Contraseña',
+                html:
+                    '<input id="swal-pass1" class="swal2-input" type="password" placeholder="Nueva Contraseña">' +
+                    '<input id="swal-pass2" class="swal2-input" type="password" placeholder="Repetir Contraseña">',
+                focusConfirm: false,
+                showCancelButton: true,
+                confirmButtonColor: '#1e40af',
+                preConfirm: () => {
+                    return [
+                        document.getElementById('swal-pass1').value,
+                        document.getElementById('swal-pass2').value
+                    ]
+                }
+            });
+
+            if (formValues) {
+                const [pass1, pass2] = formValues;
+                
+                if (!pass1 || !pass2) return Swal.fire('Error', 'Campos vacíos', 'warning');
+                if (pass1 !== pass2) return Swal.fire('Error', 'Las contraseñas no coinciden', 'error');
+
+                // Enviar al servidor
+                const username = sessionStorage.getItem('admin_username');
+                
+                try {
+                    const response = await fetch('/api/admin/cambiar-password', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ username, newPassword: pass1 })
+                    });
+                    
+                    const res = await response.json();
+                    
+                    if (res.success) {
+                        Swal.fire('Éxito', 'Contraseña actualizada correctamente', 'success');
+                    } else {
+                        Swal.fire('Error', 'No se pudo actualizar', 'error');
+                    }
+                } catch (e) {
+                    Swal.fire('Error', 'Fallo de conexión', 'error');
+                }
+            }
+		}
+	</script>
+</body>
+</html>

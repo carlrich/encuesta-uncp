@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Encuesta de Opinión - UNCP</title>
+    <link rel="shortcut icon" href="./img/logo.png" type="image/x-icon">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <style type="text/tailwindcss">
+        @layer utilities {
+            /* Ocultamos el input radio nativo */
+            .opcion-radio {
+                @apply hidden;
+            }
+            
+            /* Estilo base de la caja (el label) */
+            .caja-voto {
+                @apply w-12 h-12 border-4 border-red-600 flex items-center justify-center cursor-pointer bg-white transition-all duration-200;
+            }
+
+            /* Efecto Hover y Checked: Muestra la X */
+            .opcion-radio:checked + .caja-voto,
+            .caja-voto:hover {
+                background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23dc2626' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3e%3cline x1='18' y1='6' x2='6' y2='18'%3e%3c/line%3e%3cline x1='6' y1='6' x2='18' y2='18'%3e%3c/line%3e%3c/svg%3e");
+                background-size: 80%;
+                background-repeat: no-repeat;
+                background-position: center;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 py-8">
+    <div class="container mx-auto px-4 max-w-4xl">
+        <div class="bg-white shadow-xl rounded-lg overflow-hidden">
+            <div class="bg-blue-900 p-6 text-white text-center relative">
+                 <a href="index.html" class="absolute left-4 top-4 text-blue-200 hover:text-white"><i class="fas fa-arrow-left"></i> Volver</a>
+                <h2 class="text-2xl font-bold uppercase tracking-wider">Encuesta de Intención de Voto</h2>
+                <p class="text-blue-200 mt-2">Rol del encuestado: <span id="rolDisplay" class="font-bold uppercase text-yellow-400">---</span></p>
+            </div>
+
+            <div class="p-6 md:p-8 bg-amber-50">
+                <h3 class="text-xl text-center font-bold mb-8 text-gray-800 uppercase leading-relaxed">
+                    Si las elecciones fueran mañana,<br> ¿por cuál de las siguientes listas votarías?
+                </h3>
+
+                <form id="votingForm" class="space-y-4">
+                    <div class="flex font-bold text-lg pb-2 border-b-2 border-gray-300 mb-4">
+                        <div class="flex-grow">Movimiento / Lista</div>
+                        <div class="w-24 text-center">Opción</div>
+                        <div class="w-24 text-center">Número</div>
+                    </div>
+
+                    <div class="flex items-center border-b border-gray-200 py-3">
+                        <div class="flex-grow text-xl font-medium text-gray-800">Universidad 4.0</div>
+                        <div class="w-24 flex justify-center">
+                            <input type="radio" id="lista1" name="voto" value="1" class="opcion-radio">
+                            <label for="lista1" class="caja-voto"></label>
+                        </div>
+                        <div class="w-24 text-center text-3xl font-bold text-red-600">1</div>
+                    </div>
+                    <div class="flex items-center border-b border-gray-200 py-3">
+                        <div class="flex-grow text-xl font-medium text-gray-800">Eco Smart UNCP</div>
+                        <div class="w-24 flex justify-center">
+                            <input type="radio" id="lista2" name="voto" value="2" class="opcion-radio">
+                            <label for="lista2" class="caja-voto"></label>
+                        </div>
+                         <div class="w-24 text-center text-3xl font-bold text-red-600">2</div>
+                    </div>
+                    <div class="flex items-center border-b border-gray-200 py-3">
+                        <div class="flex-grow text-xl font-medium text-gray-800">Huallallo</div>
+                        <div class="w-24 flex justify-center">
+                            <input type="radio" id="lista3" name="voto" value="3" class="opcion-radio">
+                            <label for="lista3" class="caja-voto"></label>
+                        </div>
+                         <div class="w-24 text-center text-3xl font-bold text-red-600">3</div>
+                    </div>
+                     <div class="flex items-center border-b border-gray-200 py-3">
+                        <div class="flex-grow text-xl font-medium text-gray-800 leading-tight">Unidad Universitaria al Desarrollo UNCP</div>
+                        <div class="w-24 flex justify-center">
+                            <input type="radio" id="lista4" name="voto" value="4" class="opcion-radio">
+                            <label for="lista4" class="caja-voto"></label>
+                        </div>
+                         <div class="w-24 text-center text-3xl font-bold text-red-600">4</div>
+                    </div>
+                    <div class="flex items-center border-b border-gray-200 py-3">
+                        <div class="flex-grow text-xl font-medium text-gray-800">Leal</div>
+                        <div class="w-24 flex justify-center">
+                            <input type="radio" id="lista5" name="voto" value="5" class="opcion-radio">
+                            <label for="lista5" class="caja-voto"></label>
+                        </div>
+                         <div class="w-24 text-center text-3xl font-bold text-red-600">5</div>
+                    </div>
+                    <div class="flex items-center border-b border-gray-200 py-3">
+                        <div class="flex-grow text-xl font-medium text-gray-800">Quipu</div>
+                        <div class="w-24 flex justify-center">
+                            <input type="radio" id="lista6" name="voto" value="6" class="opcion-radio">
+                            <label for="lista6" class="caja-voto"></label>
+                        </div>
+                         <div class="w-24 text-center text-3xl font-bold text-red-600">6</div>
+                    </div>
+                    <div class="flex items-center border-b border-gray-200 py-3">
+                        <div class="flex-grow text-xl font-medium text-gray-800">Calidad 2030</div>
+                        <div class="w-24 flex justify-center">
+                            <input type="radio" id="lista7" name="voto" value="7" class="opcion-radio">
+                            <label for="lista7" class="caja-voto"></label>
+                        </div>
+                         <div class="w-24 text-center text-3xl font-bold text-red-600">7</div>
+                    </div>
+                    <div class="flex items-center border-b border-gray-200 py-3">
+                        <div class="flex-grow text-xl font-medium text-gray-800">Innóvate</div>
+                        <div class="w-24 flex justify-center">
+                            <input type="radio" id="lista8" name="voto" value="8" class="opcion-radio">
+                            <label for="lista8" class="caja-voto"></label>
+                        </div>
+                         <div class="w-24 text-center text-3xl font-bold text-red-600">8</div>
+                    </div>
+                    <div class="flex items-center border-b border-gray-200 py-3">
+                        <div class="flex-grow text-xl font-medium text-gray-800">ADU</div>
+                        <div class="w-24 flex justify-center">
+                            <input type="radio" id="lista9" name="voto" value="9" class="opcion-radio">
+                            <label for="lista9" class="caja-voto"></label>
+                        </div>
+                         <div class="w-24 text-center text-3xl font-bold text-red-600">9</div>
+                    </div>
+
+                     <div class="flex items-center py-3 bg-gray-100 mt-4 rounded">
+                        <div class="flex-grow text-xl font-bold text-gray-600 pl-4">NINGUNO / NO SABE / NO OPINA</div>
+                        <div class="w-24 flex justify-center">
+                            <input type="radio" id="ninguno" name="voto" value="0" class="opcion-radio">
+                            <label for="ninguno" class="caja-voto border-gray-500"></label>
+                        </div>
+                        <div class="w-24 text-center text-3xl font-bold text-gray-400">-</div>
+                    </div>
+
+                    <div class="mt-8 text-center">
+                        <button type="submit" class="bg-red-600 hover:bg-red-700 text-white font-bold py-4 px-12 rounded-full text-xl shadow-lg transition duration-300 uppercase tracking-wider">
+                            <i class="fas fa-check-circle mr-2"></i> Registrar mi Opinión
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+		// 1. PROTECCIÓN DE ENTRADA: Verificar si ya votó antes de cargar nada
+		if (localStorage.getItem('voto_registrado_uncp')) {
+			Swal.fire({
+				icon: 'info',
+				title: 'Ya participaste',
+				text: 'Solo se permite una opinión por dispositivo.',
+				confirmButtonText: 'Entendido',
+				allowOutsideClick: false,
+				allowEscapeKey: false
+			}).then(() => {
+				window.location.href = 'index.html'; // Lo devolvemos al inicio
+			});
+		}
+		
+		// 1. Obtener el rol de la URL (ej. votacion.html?rol=estudiante)
+        const urlParams = new URLSearchParams(window.location.search);
+        const rol = urlParams.get('rol');
+        const rolDisplay = document.getElementById('rolDisplay');
+
+        // Validar que haya un rol, si no, devolver al inicio
+        if (!rol || (rol !== 'docente' && rol !== 'estudiante')) {
+            window.location.href = 'index.html';
+        } else {
+            rolDisplay.textContent = rol;
+        }
+
+        // 2. Manejar el envío del formulario
+        document.getElementById('votingForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const opcionSeleccionada = document.querySelector('input[name="voto"]:checked');
+
+            if (!opcionSeleccionada) {
+                Swal.fire({
+                    icon: 'question',
+                    title: '¿Faltó seleccionar?',
+                    text: 'Por favor, selecciona una opción para completar la encuesta.',
+                    confirmButtonColor: '#dc2626'
+                });
+                return;
+            }
+
+            const opcion_id = opcionSeleccionada.value;
+
+            // Enviar al servidor
+            try {
+                const response = await fetch('/api/votar', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ rol, opcion_id })
+                });
+
+                if (response.ok) {
+                	localStorage.setItem('voto_registrado_uncp', 'true');
+                    Swal.fire({
+                        icon: 'success',
+                        title: '¡Opinión Registrada!',
+                        text: 'Gracias por participar en este sondeo.',
+                        confirmButtonColor: '#1e40af'
+                    }).then(() => {
+                        window.location.href = 'index.html'; // Volver al inicio
+                    });
+                } else {
+                    throw new Error('Error en el servidor');
+                }
+            } catch (error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'No se pudo guardar tu respuesta. Intente nuevamente.',
+                });
+            }
+        });
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+</body>
+</html>

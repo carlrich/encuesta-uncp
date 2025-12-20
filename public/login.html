@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acceso Administrador - UNCP</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gradient-to-br from-blue-900 to-gray-800 h-screen flex items-center justify-center">
+    
+    <div class="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-sm transform hover:scale-105 transition duration-300">
+        <div class="text-center mb-6">
+            <div class="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-user-shield text-3xl text-blue-900"></i>
+            </div>
+            <h2 class="text-2xl font-bold text-gray-800">Acceso Admin</h2>
+            <p class="text-gray-500 text-sm">Ingrese sus credenciales</p>
+        </div>
+
+        <form id="loginForm" class="space-y-4">
+            <div>
+                <label class="block text-gray-700 text-sm font-bold mb-2">Usuario</label>
+                <div class="relative">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                        <i class="fas fa-user"></i>
+                    </span>
+                    <input type="text" id="username" class="w-full pl-10 pr-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="admin" required>
+                </div>
+            </div>
+            
+            <div>
+                <label class="block text-gray-700 text-sm font-bold mb-2">Contraseña</label>
+                <div class="relative">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                        <i class="fas fa-lock"></i>
+                    </span>
+                    <input type="password" id="password" class="w-full pl-10 pr-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="••••••" required>
+                </div>
+            </div>
+
+            <button type="submit" class="w-full bg-blue-900 hover:bg-blue-800 text-white font-bold py-3 rounded-lg shadow transition duration-200">
+                INGRESAR
+            </button>
+        </form>
+        
+        <div class="mt-4 text-center">
+            <a href="index.html" class="text-sm text-gray-500 hover:text-blue-900">← Volver a la votación</a>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            try {
+                const response = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+                
+                const result = await response.json();
+
+                if (result.success) {
+                    // Guardamos una "marca" en el navegador para saber que está logueado
+                    sessionStorage.setItem('admin_logged_in', 'true');
+                    sessionStorage.setItem('admin_username', username);
+                    
+                    const Toast = Swal.mixin({
+                        toast: true, position: 'top-end', showConfirmButton: false, timer: 1500,
+                        didOpen: (toast) => { toast.addEventListener('mouseenter', Swal.stopTimer); toast.addEventListener('mouseleave', Swal.resumeTimer); }
+                    });
+                    Toast.fire({ icon: 'success', title: 'Bienvenido' });
+                    
+                    setTimeout(() => window.location.href = 'admin.html', 1500);
+                } else {
+                    Swal.fire({ icon: 'error', title: 'Error', text: 'Usuario o contraseña incorrectos' });
+                }
+            } catch (error) {
+                console.error(error);
+            }
+        });
+    </script>
+</body>
+</html>

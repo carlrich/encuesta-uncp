@@ -1,0 +1,12 @@
+# Dependencias (Se instalan solas con npm install)
+node_modules/
+
+# Base de datos local (El servidor creará una nueva limpia)
+votos.db
+
+# Variables de entorno y secretos (Por seguridad)
+.env
+
+# Archivos de sistema innecesarios
+.DS_Store
+Thumbs.db

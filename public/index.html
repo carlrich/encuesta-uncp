@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Elecciones UNCP - Bienvenida</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+	<link rel="shortcut icon" href="./img/logo.png" type="image/x-icon">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-100 flex items-center justify-center h-screen">
+    <div class="bg-white p-8 rounded-lg shadow-lg max-w-md w-full text-center">
+        <img src="./img/logo.png" alt="UNCP Logo" class="mx-auto mb-6 h-24">
+        <h1 class="text-2xl font-bold mb-6 text-blue-900">Sistema de Encuesta Electoral UNCP</h1>
+        <p class="mb-8 text-gray-600">Por favor, seleccione su rol para continuar:</p>
+        
+        <div class="space-y-4">
+            <a href="votacion.html?rol=docente" class="block w-full bg-blue-800 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded transition duration-300 flex items-center justify-center">
+                <i class="fas fa-chalkboard-teacher mr-3"></i> Soy Docente
+            </a>
+            <a href="votacion.html?rol=estudiante" class="block w-full bg-green-600 hover:bg-green-500 text-white font-bold py-3 px-4 rounded transition duration-300 flex items-center justify-center">
+                <i class="fas fa-user-graduate mr-3"></i> Soy Estudiante
+            </a>
+        </div>
+         <div class="mt-8 text-sm text-gray-500">
+            <a href="admin.html" class="underline">Ir al panel de administrador</a>
+        </div>
+    </div>
+</body>
+	<script>
+		// VERIFICAR SI YA VOTÓ AL CARGAR LA PÁGINA
+		document.addEventListener("DOMContentLoaded", () => {
+			const yaVoto = localStorage.getItem('voto_registrado_uncp');
+
+			if (yaVoto) {
+				// Ocultar los botones de selección y mostrar mensaje
+				const contenedorBotones = document.querySelector('.space-y-4'); // El div que tiene los botones
+				const mensaje = document.createElement('div');
+				
+				mensaje.innerHTML = `
+					<div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded shadow-md animate-pulse">
+						<p class="font-bold">¡Gracias por participar!</p>
+						<p>Tu opinión ya ha sido registrada desde este dispositivo.</p>
+					</div>
+				`;
+				
+				contenedorBotones.innerHTML = ''; // Borra los botones
+				contenedorBotones.appendChild(mensaje); // Pone el mensaje
+			}
+		});
+	</script>
+</html>
